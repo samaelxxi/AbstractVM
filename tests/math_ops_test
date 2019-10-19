@@ -1,4 +1,4 @@
-push int16(32)
+push int16(3)
 push int8(8)
 push int32(2)
 add
