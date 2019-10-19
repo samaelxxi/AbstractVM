@@ -7,7 +7,7 @@
 #include "AbstractVM.h"
 #include "input/FileReader.h"
 #include "parsing/Token.h"
-#include "Instruction.h"
+#include "execution/Instruction.h"
 #include "input/CinReader.h"
 
 

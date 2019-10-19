@@ -5,8 +5,8 @@
 #ifndef AVM_OPERAND_H
 #define AVM_OPERAND_H
 
-
 #include "IOperand.h"
+#include "OperandFactory.h"
 
 template <class T>
 class Operand : public IOperand
@@ -25,6 +25,8 @@ public:
     IOperand const * operator%( IOperand const & rhs) const override ;
 
     std::string const & toString() const override ;
+
+    static double getValue(IOperand const & rhs);
 
 private:
     T m_value;
@@ -52,28 +54,48 @@ eOperandType Operand<T>::getType() const {
 }
 
 template<class T>
-IOperand const *Operand<T>::operator+(IOperand const &rhs) const {
-    return nullptr;
+IOperand const *Operand<T>::operator+(IOperand const &rhs) const
+{
+    eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
+    std::string val_str;
+    val_str = std::to_string(m_value + Operand::getValue(rhs));
+    return OperandFactory().createOperand(new_type, val_str);
 }
 
 template<class T>
 IOperand const *Operand<T>::operator-(IOperand const &rhs) const {
-    return nullptr;
+    eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
+    std::string val_str;
+    val_str = std::to_string(m_value - Operand::getValue(rhs));
+    return OperandFactory().createOperand(new_type, val_str);
 }
 
 template<class T>
 IOperand const *Operand<T>::operator*(IOperand const &rhs) const {
-    return nullptr;
+    eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
+    std::string val_str;
+    val_str = std::to_string(m_value * Operand::getValue(rhs));
+    return OperandFactory().createOperand(new_type, val_str);
 }
 
 template<class T>
 IOperand const *Operand<T>::operator/(IOperand const &rhs) const {
-    return nullptr;
+    eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
+    std::string val_str;
+    val_str = std::to_string(m_value / Operand::getValue(rhs));
+    return OperandFactory().createOperand(new_type, val_str);
 }
 
 template<class T>
 IOperand const *Operand<T>::operator%(IOperand const &rhs) const {
-    return nullptr;
+    eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
+    std::string val_str;
+    if (new_type > eOperandType::INT32)
+        val_str = std::to_string(fmod(m_value, Operand::getValue(rhs)));
+    else
+        val_str = std::to_string(m_value % Operand::getValue(rhs));
+
+    return OperandFactory().createOperand(new_type, val_str);
 }
 
 template<class T>
@@ -81,6 +103,14 @@ std::string const &Operand<T>::toString() const {
     return m_string_repr;
 }
 
+template<class T>
+double Operand<T>::getValue(IOperand const &rhs) {
+    if (rhs.getType() < eOperandType::FLOAT)
+    {
+        return std::stoi(rhs.toString());
+    }
+    return std::stod(rhs.toString());
+}
 
 
 #endif //AVM_OPERAND_H

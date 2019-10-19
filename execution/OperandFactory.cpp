@@ -68,4 +68,3 @@ IOperand const *OperandFactory::createInt8(std::string const &value) const {
 
     return new Operand<int8_t>(val, eOperandType::INT8);
 }
-

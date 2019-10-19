@@ -3,10 +3,11 @@
 //
 
 #include "Instruction.h"
-#include "consts.h"
+#include "../consts.h"
 #include "IOperand.h"
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 void Instruction::execute(std::vector<IOperand const *>& stack)
 {
@@ -53,35 +54,81 @@ void Instruction::assert_(std::vector<IOperand const *> &stack) {
 }
 
 void Instruction::add(std::vector<IOperand const *> &stack) {
+    if (stack.size() < 2)
+        throw std::exception();
     auto first = stack.back();
     auto second = stack[stack.size()-2];
     stack.pop_back();
     stack.pop_back();
 
-    auto new_elem = first + second;
+    auto new_elem = *first + *second;
     stack.push_back(new_elem);
 }
 
 void Instruction::sub(std::vector<IOperand const *> &stack) {
+    if (stack.size() < 2)
+        throw std::exception();
 
+    auto first = stack.back();
+    auto second = stack[stack.size()-2];
+    stack.pop_back();
+    stack.pop_back();
+
+    auto new_elem = *first - *second;
+    stack.push_back(new_elem);
 }
 
 void Instruction::mul(std::vector<IOperand const *> &stack) {
+    if (stack.size() < 2)
+        throw std::exception();
 
+    auto first = stack.back();
+    auto second = stack[stack.size()-2];
+    stack.pop_back();
+    stack.pop_back();
+
+    auto new_elem = *first * *second;
+    stack.push_back(new_elem);
 }
 
 void Instruction::div(std::vector<IOperand const *> &stack) {
+    if (stack.size() < 2)
+        throw std::exception();
 
+    auto first = stack.back();
+    auto second = stack[stack.size()-2];
+    stack.pop_back();
+    stack.pop_back();
+
+    if (std::stod(second->toString()) == 0)
+        throw std::exception();
+
+    auto new_elem = *first / *second;
+    stack.push_back(new_elem);
 }
 
 void Instruction::mod(std::vector<IOperand const *> &stack) {
+    if (stack.size() < 2)
+        throw std::exception();
 
+    auto first = stack.back();
+    auto second = stack[stack.size()-2];
+    stack.pop_back();
+    stack.pop_back();
+
+    if (std::stod(second->toString()) == 0)
+        throw std::exception();
+
+    auto new_elem = *first % *second;
+    stack.push_back(new_elem);
 }
 
 void Instruction::print(std::vector<IOperand const *> &stack) {
-
+    if (stack.back()->getType() != eOperandType::INT8)
+        throw std::exception();
+    std::cout << static_cast<char>(std::stoi(stack.back()->toString()));
 }
 
 void Instruction::exit(std::vector<IOperand const *> &stack) {
-
+    throw std::exception();
 }

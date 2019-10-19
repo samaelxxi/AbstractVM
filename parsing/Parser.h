@@ -7,7 +7,7 @@
 
 
 #include "Token.h"
-#include "../Instruction.h"
+#include "../execution/Instruction.h"
 #include <vector>
 
 class Parser {

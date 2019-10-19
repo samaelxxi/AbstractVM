@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "Parser.h"
-#include "../OperandFactory.h"
+#include "../execution/OperandFactory.h"
 #include "../consts.h"
 
 std::shared_ptr<std::vector<Instruction>> Parser::parse(std::shared_ptr<std::vector<std::vector<Token>*>> tokens)

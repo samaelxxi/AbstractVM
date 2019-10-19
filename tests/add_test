@@ -1,0 +1,11 @@
+push int8(4)
+push int8(2)
+add
+dump
+push double(36.2)
+add
+dump
+push int32(-42)
+add
+dump
+exit

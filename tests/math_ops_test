@@ -1,0 +1,14 @@
+push int16(32)
+push int8(8)
+push int32(2)
+add
+dump
+div
+dump
+push float(15.5)
+mul
+dump
+push int8(100)
+sub
+dump
+exit
