@@ -11,6 +11,7 @@ std::shared_ptr<std::vector<Instruction>> Parser::parse(std::shared_ptr<std::vec
 {
     auto instructions = std::make_shared<std::vector<Instruction>>();
 
+    bool is_correct = true;
     for (auto &toks : *tokens)
     {
         try {
@@ -20,10 +21,12 @@ std::shared_ptr<std::vector<Instruction>> Parser::parse(std::shared_ptr<std::vec
         catch (const std::exception &exc)
         {
             std::cout << exc.what();
+            is_correct = false;
         }
     }
-
-    return instructions;
+    if (is_correct)
+        return instructions;
+    return nullptr;
 }
 
 Instruction Parser::parse_tokens(std::vector<Token> &tokens) {
