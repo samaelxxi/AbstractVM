@@ -17,11 +17,8 @@ bool isFloat( std::string myString ) {
 }
 
 bool isInt( std::string myString ) {
-    std::istringstream iss(myString);
-    int f;
-    iss >> std::noskipws >> f; // noskipws considers leading whitespace invalid
-    // Check the entire string was consumed and if either failbit or badbit is set
-    return iss.eof() && !iss.fail();
+    return (std::all_of(myString.begin(), myString.end(), isdigit) ||
+            (std::all_of(myString.begin(), myString.end(), isdigit) && myString[0] == '-'));
 }
 
 
@@ -32,7 +29,8 @@ std::shared_ptr<std::vector<std::vector<Token>*>> Lexer::tokenize(std::shared_pt
     for (auto &line : *lines)
     {
         auto token_vect = tokenize_line(line);
-        tokens->push_back(token_vect);
+        if (token_vect)
+            tokens->push_back(token_vect);
     }
 
     return tokens;
@@ -45,12 +43,13 @@ std::vector<Token> *Lexer::tokenize_line(std::string &line) {
     std::istringstream iss(line);
     std::vector<std::string> words(std::istream_iterator<std::string>{iss},
                                      std::istream_iterator<std::string>());
+    if (words.empty())
+        return nullptr;
 
-    int word_idx = 0;
+    unsigned word_idx = 0;
     std::string next_word = words[word_idx];
     while (word_idx < words.size())
     {
-        bool new_word = false;
         // Check if comment
         size_t comment_idx = next_word.find(';');
         if (comment_idx != std::string::npos)
@@ -61,7 +60,8 @@ std::vector<Token> *Lexer::tokenize_line(std::string &line) {
         if (next_word.empty())
         {
             word_idx++;
-            next_word = words[word_idx];
+            if (word_idx < words.size())
+                next_word = words[word_idx];
             continue;
         }
         // Check for OPERAND token
@@ -104,7 +104,8 @@ std::vector<Token> *Lexer::tokenize_line(std::string &line) {
         else  // ERROR CASE
             token_vect->push_back({TokenType::ERROR, next_word});
         word_idx++;
-        next_word = words[word_idx];
+        if (word_idx < words.size())
+            next_word = words[word_idx];
     }
 
     return token_vect;

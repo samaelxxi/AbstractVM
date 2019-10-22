@@ -6,6 +6,7 @@
 #include "Parser.h"
 #include "../execution/OperandFactory.h"
 #include "../consts.h"
+#include "../execution/exceptions.h"
 
 std::shared_ptr<std::vector<Instruction>> Parser::parse(std::shared_ptr<std::vector<std::vector<Token>*>> tokens)
 {
@@ -20,7 +21,7 @@ std::shared_ptr<std::vector<Instruction>> Parser::parse(std::shared_ptr<std::vec
         }
         catch (const std::exception &exc)
         {
-            std::cout << exc.what();
+            std::cout << exc.what() << std::endl;
             is_correct = false;
         }
     }
@@ -29,30 +30,49 @@ std::shared_ptr<std::vector<Instruction>> Parser::parse(std::shared_ptr<std::vec
     return nullptr;
 }
 
+std::string tokensToString(std::vector<Token> &tokens)
+{
+    std::string res;
+    for (auto &token : tokens)
+    {
+        res += token.m_value;
+        res += ' ';
+    }
+    return res;
+}
+
 Instruction Parser::parse_tokens(std::vector<Token> &tokens) {
     // first token always command
     if (tokens[0].m_type != TokenType::COMMAND)
-        throw std::exception();
+        throw ExcWrongLineFormat(tokensToString(tokens));
+
+    // if command takes value but only one token
+    if (std::find(g_value_commands.begin(), g_value_commands.end(), tokens[0].m_value) != g_value_commands.end() &&
+        tokens.size() == 1)
+        throw ExcWrongLineFormat(tokensToString(tokens));
+
+
     if (tokens.size() == 1)
         return Instruction(tokens[0].m_value, nullptr);
 
     // Only 1 or 3 tokens possible
     if (tokens.size() != 3)
-        throw std::exception();
+        throw ExcWrongLineFormat(tokensToString(tokens));
+
 
     // if 3, then command should take value
     if (std::find(g_value_commands.begin(), g_value_commands.end(), tokens[0].m_value) == g_value_commands.end())
-        throw std::exception();
+        throw ExcWrongLineFormat(tokensToString(tokens));
 
     // second token is operand and third is literal
     if (tokens[1].m_type != TokenType::OPERAND || (tokens[2].m_type != TokenType::INT_LITERAL &&
                                                    tokens[2].m_type != TokenType::FLOAT_LITERAL))
-        throw std::exception();
+        throw ExcWrongLineFormat(tokensToString(tokens));
 
     // int operands can't support float literals
     if ((tokens[1].m_value == "int8" || tokens[1].m_value == "int16" || tokens[1].m_value == "int32") &&
             tokens[2].m_type == TokenType::FLOAT_LITERAL)
-        throw std::exception();
+        throw ExcWrongLineFormat(tokensToString(tokens));
 
 
     auto type = static_cast<eOperandType>(std::distance(g_operands.begin(), std::find(g_operands.begin(), g_operands.end(), tokens[1].m_value)));

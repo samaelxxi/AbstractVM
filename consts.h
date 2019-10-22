@@ -8,10 +8,10 @@
 #include <string>
 #include <array>
 
-constexpr int commands_num = 11;
+constexpr int commands_num = 15;
 
 static std::array<std::string, commands_num> g_commands
-{
+{{
     "push",
     "pop",
     "dump",
@@ -22,22 +22,26 @@ static std::array<std::string, commands_num> g_commands
     "div",
     "mod",
     "print",
-    "exit"
-};
+    "exit",
+    "pow",
+    "and",
+    "or",
+    "xor"
+}};
 
-static std::array<std::string, commands_num> g_value_commands
-{
+static std::array<std::string, 2> g_value_commands
+{{
     "push",
     "assert",
-};
+}};
 
 static std::array<std::string, 5> g_operands =
-{
+{{
     "int8",
     "int16",
     "int32",
     "float",
     "double"
-};
+}};
 
 #endif //AVM_CONSTS_H
