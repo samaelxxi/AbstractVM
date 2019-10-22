@@ -8,6 +8,8 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include "exceptions.h"
+#include "Operand.h"
 
 void Instruction::execute(std::vector<IOperand const *>& stack)
 {
@@ -24,7 +26,11 @@ void Instruction::execute(std::vector<IOperand const *>& stack)
                     &Instruction::div,
                     &Instruction::mod,
                     &Instruction::print,
-                    &Instruction::exit
+                    &Instruction::exit,
+                    &Instruction::pow,
+                    &Instruction::and_,
+                    &Instruction::or_,
+                    &Instruction::xor_
             };
 
     auto idx = (std::distance(g_commands.begin(), std::find(g_commands.begin(), g_commands.end(), m_type)));
@@ -37,7 +43,7 @@ void Instruction::push(std::vector<IOperand const *> &stack) {
 
 void Instruction::pop(std::vector<IOperand const *> &stack) {
     if (stack.empty())
-        throw std::exception();
+        throw ExcStackIsEmpty("pop");
     stack.pop_back();
 }
 
@@ -47,17 +53,18 @@ void Instruction::dump(std::vector<IOperand const *> &stack) {
 }
 
 void Instruction::assert_(std::vector<IOperand const *> &stack) {
-    if (stack.empty() ||
-        stack.back()->toString() != m_operand->toString() ||
+    if (stack.empty())
+        throw ExcStackIsEmpty("print");
+    else if (stack.back()->toString() != m_operand->toString() ||
         stack.back()->getType() != m_operand->getType())
-        throw std::exception();
+        throw ExcAssertion(stack.back()->toString() + " != " + m_operand->toString());
 }
 
 void Instruction::add(std::vector<IOperand const *> &stack) {
     if (stack.size() < 2)
-        throw std::exception();
-    auto first = stack.back();
-    auto second = stack[stack.size()-2];
+        throw ExcStackIsEmpty("add");
+    auto second = stack.back();
+    auto first = stack[stack.size()-2];
     stack.pop_back();
     stack.pop_back();
 
@@ -67,10 +74,10 @@ void Instruction::add(std::vector<IOperand const *> &stack) {
 
 void Instruction::sub(std::vector<IOperand const *> &stack) {
     if (stack.size() < 2)
-        throw std::exception();
+        throw ExcStackIsEmpty("sub");
 
-    auto first = stack.back();
-    auto second = stack[stack.size()-2];
+    auto second = stack.back();
+    auto first = stack[stack.size()-2];
     stack.pop_back();
     stack.pop_back();
 
@@ -80,10 +87,10 @@ void Instruction::sub(std::vector<IOperand const *> &stack) {
 
 void Instruction::mul(std::vector<IOperand const *> &stack) {
     if (stack.size() < 2)
-        throw std::exception();
+        throw ExcStackIsEmpty("mul");
 
-    auto first = stack.back();
-    auto second = stack[stack.size()-2];
+    auto second = stack.back();
+    auto first = stack[stack.size()-2];
     stack.pop_back();
     stack.pop_back();
 
@@ -93,15 +100,15 @@ void Instruction::mul(std::vector<IOperand const *> &stack) {
 
 void Instruction::div(std::vector<IOperand const *> &stack) {
     if (stack.size() < 2)
-        throw std::exception();
+        throw ExcStackIsEmpty("div");
 
-    auto first = stack.back();
-    auto second = stack[stack.size()-2];
+    auto second = stack.back();
+    auto first = stack[stack.size()-2];
     stack.pop_back();
     stack.pop_back();
 
     if (std::stod(second->toString()) == 0)
-        throw std::exception();
+        throw ExcZeroDivision();
 
     auto new_elem = *first / *second;
     stack.push_back(new_elem);
@@ -109,26 +116,77 @@ void Instruction::div(std::vector<IOperand const *> &stack) {
 
 void Instruction::mod(std::vector<IOperand const *> &stack) {
     if (stack.size() < 2)
-        throw std::exception();
+        throw ExcStackIsEmpty("mod");
 
-    auto first = stack.back();
-    auto second = stack[stack.size()-2];
+    auto second = stack.back();
+    auto first = stack[stack.size()-2];
     stack.pop_back();
     stack.pop_back();
 
     if (std::stod(second->toString()) == 0)
-        throw std::exception();
+        throw ExcZeroDivision();
 
     auto new_elem = *first % *second;
     stack.push_back(new_elem);
 }
 
 void Instruction::print(std::vector<IOperand const *> &stack) {
+    if (stack.empty())
+        throw ExcStackIsEmpty("print");
     if (stack.back()->getType() != eOperandType::INT8)
-        throw std::exception();
+        throw ExcPrintNonChar();
     std::cout << static_cast<char>(std::stoi(stack.back()->toString()));
 }
 
 void Instruction::exit(std::vector<IOperand const *> &stack) {
-    throw std::exception();
+    static_cast<void>(stack);
+    throw ExcExit();
+}
+
+void Instruction::pow(std::vector<IOperand const *> &stack) {
+    if (stack.size() < 2)
+        throw ExcStackIsEmpty("add");
+    auto first = stack.back();
+    auto second = stack[stack.size()-2];
+    stack.pop_back();
+    stack.pop_back();
+
+    auto new_elem = *first ^ *second;
+    stack.push_back(new_elem);
+}
+
+void Instruction::and_(std::vector<IOperand const *> &stack) {
+    if (stack.size() < 2)
+        throw ExcStackIsEmpty("add");
+    auto first = stack.back();
+    auto second = stack[stack.size()-2];
+    stack.pop_back();
+    stack.pop_back();
+
+    auto new_elem = *first & *second;
+    stack.push_back(new_elem);
+}
+
+void Instruction::or_(std::vector<IOperand const *> &stack) {
+    if (stack.size() < 2)
+        throw ExcStackIsEmpty("add");
+    auto first = stack.back();
+    auto second = stack[stack.size()-2];
+    stack.pop_back();
+    stack.pop_back();
+
+    auto new_elem = *first | *second;
+    stack.push_back(new_elem);
+}
+
+void Instruction::xor_(std::vector<IOperand const *> &stack) {
+    if (stack.size() < 2)
+        throw ExcStackIsEmpty("add");
+    auto first = stack.back();
+    auto second = stack[stack.size()-2];
+    stack.pop_back();
+    stack.pop_back();
+
+    auto new_elem = *first || *second;
+    stack.push_back(new_elem);
 }

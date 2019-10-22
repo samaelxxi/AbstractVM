@@ -28,6 +28,10 @@ public:
     virtual IOperand const * operator*( IOperand const & rhs) const = 0;
     virtual IOperand const * operator/( IOperand const & rhs) const = 0;
     virtual IOperand const * operator%( IOperand const & rhs) const = 0;
+    virtual IOperand const * operator|( IOperand const & rhs) const = 0;
+    virtual IOperand const * operator||( IOperand const & rhs) const = 0;
+    virtual IOperand const * operator&( IOperand const & rhs) const = 0;
+    virtual IOperand const * operator^( IOperand const & rhs) const = 0;
     // Precision of the type of the instance
 
     virtual std::string const & toString() const = 0;

@@ -24,6 +24,10 @@ public:
     IOperand const * operator*( IOperand const & rhs) const override ;
     IOperand const * operator/( IOperand const & rhs) const override ;
     IOperand const * operator%( IOperand const & rhs) const override ;
+    IOperand const * operator|(IOperand const &rhs) const override ;
+    IOperand const * operator||(IOperand const &rhs) const override ;
+    IOperand const * operator&(IOperand const &rhs) const override ;
+    IOperand const * operator^(IOperand const &rhs) const override ;
 
     std::string const & toString() const override ;
 
@@ -92,11 +96,61 @@ template<class T>
 IOperand const *Operand<T>::operator%(IOperand const &rhs) const {
     eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
     std::string val_str;
-    if (new_type > eOperandType::INT32)
-        val_str = std::to_string(fmod(m_value, Operand::getDoubleValue(rhs)));
+    val_str = std::to_string(fmod(m_value, Operand::getDoubleValue(rhs)));
 
     return OperandFactory().createOperand(new_type, val_str);
 }
+
+template<class T>
+IOperand const *Operand<T>::operator|(IOperand const &rhs) const {
+    eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
+    std::string val_str;
+
+    if (getType() > eOperandType::INT32 || rhs.getType() > eOperandType::INT32)
+        throw std::exception();
+
+    val_str = std::to_string(static_cast<int>(m_value) | static_cast<int>(Operand::getDoubleValue(rhs)));
+
+    return OperandFactory().createOperand(new_type, val_str);
+}
+
+template<class T>
+IOperand const *Operand<T>::operator&(IOperand const &rhs) const {
+    eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
+    std::string val_str;
+
+    if (getType() > eOperandType::INT32 || rhs.getType() > eOperandType::INT32)
+        throw std::exception();
+
+    val_str = std::to_string(static_cast<int>(m_value) & static_cast<int>(Operand::getDoubleValue(rhs)));
+
+    return OperandFactory().createOperand(new_type, val_str);
+}
+
+template<class T>
+IOperand const *Operand<T>::operator||(IOperand const &rhs) const {
+    eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
+    std::string val_str;
+
+    if (getType() > eOperandType::INT32 || rhs.getType() > eOperandType::INT32)
+        throw std::exception();
+
+    val_str = std::to_string(static_cast<int>(m_value) ^ static_cast<int>(Operand::getDoubleValue(rhs)));
+
+    return OperandFactory().createOperand(new_type, val_str);
+}
+
+template<class T>
+IOperand const *Operand<T>::operator^(IOperand const &rhs) const {
+    eOperandType new_type = (getType() > rhs.getType()) ? getType() : rhs.getType();
+    std::string val_str;
+
+    val_str = std::to_string(pow(m_value, Operand::getDoubleValue(rhs)));
+
+    return OperandFactory().createOperand(new_type, val_str);
+}
+
+
 
 template<class T>
 std::string const &Operand<T>::toString() const {

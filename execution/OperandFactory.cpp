@@ -5,6 +5,7 @@
 #include "OperandFactory.h"
 #include "Operand.h"
 #include "IOperand.h"
+#include "exceptions.h"
 #include <vector>
 #include <sstream>
 
@@ -26,9 +27,14 @@ IOperand const *OperandFactory::createOperand(eOperandType type, std::string con
 }
 
 IOperand const *OperandFactory::createDouble(std::string const &value) const {
-    double val = std::stod(value);
-
-    return new Operand<double>(val, eOperandType::DOUBLE);
+    try {
+        double val = std::stod(value);
+        return new Operand<double>(val, eOperandType::DOUBLE);
+    }
+    catch (std::exception &exc)
+    {
+        throw ExcOverflow(value);
+    }
 }
 
 IOperand const *OperandFactory::createFloat(std::string const &value) const {
@@ -38,33 +44,58 @@ IOperand const *OperandFactory::createFloat(std::string const &value) const {
     float val = std::strtof(ptr, &end);
 
     if (errno == ERANGE)
-        throw std::out_of_range("stof argument out of range");
+        throw ExcOverflow(value);
     return new Operand<float>(val, eOperandType::FLOAT);
 }
 
 IOperand const *OperandFactory::createInt32(std::string const &value) const {
-    long val = std::stoi(value);
+    try {
+        double val = std::stod(value);
 
-    if (val > INT32_MAX || val < INT32_MIN)
-        throw std::exception();
+        if (val > std::numeric_limits<int32_t>::max())
+            throw ExcOverflow(value);
+        else if (val < std::numeric_limits<int32_t>::min())
+            throw ExcUnderflow(value);
 
-    return new Operand<int32_t>(val, eOperandType::INT32);
+        return new Operand<int32_t>(val, eOperandType::INT32);
+    }
+    catch (std::exception &exc)
+    {
+        throw ExcOverflow(value);
+    }
 }
 
+#include <iostream>
 IOperand const *OperandFactory::createInt16(std::string const &value) const {
-    long val = std::stoi(value);
+    try {
+        double val = std::stod(value);
 
-    if (val > INT16_MAX || val < INT16_MIN)
-        throw std::exception();
+        if (val > std::numeric_limits<int16_t>::max())
+            throw ExcOverflow(value);
+        else if (val < std::numeric_limits<int16_t>::min())
+            throw ExcUnderflow(value);
 
     return new Operand<int16_t>(val, eOperandType::INT16);
+    }
+    catch (std::exception &exc)
+    {
+        throw ExcOverflow(value);
+    }
 }
 
 IOperand const *OperandFactory::createInt8(std::string const &value) const {
-    long val = std::stoi(value);
+    try {
+        double val = std::stod(value);
 
-    if (val > INT8_MAX || val < INT8_MIN)
-        throw std::exception();
+        if (val > std::numeric_limits<int8_t>::max())
+            throw ExcOverflow(value);
+        else if (val < std::numeric_limits<int8_t>::min())
+            throw ExcUnderflow(value);
 
-    return new Operand<int8_t>(val, eOperandType::INT8);
+        return new Operand<int8_t>(val, eOperandType::INT8);   
+    }
+    catch (std::exception &exc)
+    {
+        throw ExcOverflow(value);
+    }
 }

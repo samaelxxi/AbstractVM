@@ -32,6 +32,10 @@ private:
     void mod(std::vector<IOperand const *>& stack);
     void print(std::vector<IOperand const *>& stack);
     void exit(std::vector<IOperand const *>& stack);
+    void pow(std::vector<IOperand const *> &stack);
+    void and_(std::vector<IOperand const *> &stack);
+    void or_(std::vector<IOperand const *> &stack);
+    void xor_(std::vector<IOperand const *> &stack);
 
     std::string m_type;
     IOperand const *m_operand;
