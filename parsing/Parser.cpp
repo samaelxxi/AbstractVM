@@ -15,6 +15,8 @@ std::shared_ptr<std::vector<Instruction>> Parser::parse(std::shared_ptr<std::vec
     bool is_correct = true;
     for (auto &toks : *tokens)
     {
+        if (toks->empty())
+            continue;
         try {
             auto instr = parse_tokens(*toks);
             instructions->push_back(instr);
